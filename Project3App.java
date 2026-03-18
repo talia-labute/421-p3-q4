@@ -1,18 +1,13 @@
 import java.sql.* ;
+import java.util.Scanner;
 
 class Project3App
 {
     public static void main ( String [ ] args ) throws SQLException
     {
       // Unique table names.  Either the user supplies a unique identifier as a command line argument, or the program makes one up.
-        String tableName = "";
         int sqlCode=0;      // Variable to hold SQLCODE
         String sqlState="00000";  // Variable to hold SQLSTATE
-
-        if ( args.length > 0 )
-            tableName += args [ 0 ] ;
-        else
-          tableName += "exampletbl";
 
         // Register the driver.  You must register the driver before you can use it.
         try { DriverManager.registerDriver ( new com.ibm.db2.jcc.DB2Driver() ) ; }
@@ -40,6 +35,54 @@ class Project3App
         Connection con = DriverManager.getConnection (url,your_userid,your_password) ;
         Statement statement = con.createStatement ( ) ;
 
+        boolean running = true;
+
+        while (running){
+          System.out.println();
+            System.out.println("Limp Bakery Main Menu");
+            System.out.println("  1. Look up expiration of Product");
+            System.out.println("  2. Add new customer");
+            System.out.println("  3. Update price of product");
+            System.out.println("  4. Remove employee");
+            System.out.println("  5. Inventory specials");
+            System.out.println("  6. Task 6");
+            System.out.println("  7. Quit");
+            System.out.print("Enter your choice: ");
+
+            String choice = in.nextLine();
+
+            switch(choice){
+              case "1":
+                // Look up expiration of Product
+                break;
+              case "2":
+                // Add new customer
+                break;
+              case "3":
+                // Update price of product
+                break;
+              case "4":
+                // Remove employee
+                break;
+              case "5":
+                // Inventory specials
+                break;
+              case "6":
+                // Task 6
+                break;
+              case "7":
+                running = false;
+                System.out.println("Goodbye!");
+                break;
+              default:
+                System.out.println("Invalid choice. Please try again.");
+            }
+        }
+
+        in.close();
+        con.close();
+
+        //Everything below is not needed but provides a skeleton for us to use to implement stuff later
         // Creating a table
         try
         {
