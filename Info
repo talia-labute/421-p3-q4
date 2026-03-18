@@ -1,0 +1,13 @@
+used by manager
+
+one simple SELECT: select price of product
+
+one INSERT: insert meaningful customer 
+
+one UPDATE or DELETE: update price of product / fire employee
+
+one option with two SQL statements: look up product that is in stock and is not more than a certain price
+
+one submenu option: 
+
+quit
