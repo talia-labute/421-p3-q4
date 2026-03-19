@@ -33,7 +33,7 @@ class Project3App
           System.exit(1);
         }
         Connection con = DriverManager.getConnection (url,your_userid,your_password) ;
-        Statement statement = con.createStatement ( ) ;
+        Scanner in = new Scanner(System.in);
 
         boolean running = true;
 
@@ -53,21 +53,27 @@ class Project3App
 
             switch(choice){
               case "1":
+                System.out.println("Not implemented yet");
                 // Look up expiration of Product
                 break;
               case "2":
+                System.out.println("Not implemented yet");
                 // Add new customer
                 break;
               case "3":
+                System.out.println("Not implemented yet");
                 // Update price of product
                 break;
               case "4":
+                System.out.println("Not implemented yet");
                 // Remove employee
                 break;
               case "5":
+                System.out.println("Not implemented yet");
                 // Inventory specials
                 break;
               case "6":
+                System.out.println("Not implemented yet");
                 // Task 6
                 break;
               case "7":
@@ -81,110 +87,5 @@ class Project3App
 
         in.close();
         con.close();
-
-        //Everything below is not needed but provides a skeleton for us to use to implement stuff later
-        // Creating a table
-        try
-        {
-          String createSQL = "CREATE TABLE " + tableName + " (id INTEGER, name VARCHAR (25)) ";
-          System.out.println (createSQL ) ;
-          statement.executeUpdate (createSQL ) ;
-          System.out.println ("DONE");
-        }
-        catch (SQLException e)
-        {
-          sqlCode = e.getErrorCode(); // Get SQLCODE
-          sqlState = e.getSQLState(); // Get SQLSTATE
-                
-          // Your code to handle errors comes here;
-          // something more meaningful than a print would be good
-          System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-          System.out.println(e);
-         }
-
-        // Inserting Data into the table
-        try
-        {
-          String insertSQL = "INSERT INTO " + tableName + " VALUES ( 1 , \'Vicki\' ) " ;
-          System.out.println ( insertSQL ) ;
-          statement.executeUpdate ( insertSQL ) ;
-          System.out.println ( "DONE" ) ;
-
-          insertSQL = "INSERT INTO " + tableName + " VALUES ( 2 , \'Vera\' ) " ;
-          System.out.println ( insertSQL ) ;
-          statement.executeUpdate ( insertSQL ) ;
-          System.out.println ( "DONE" ) ;
-          insertSQL = "INSERT INTO " + tableName + " VALUES ( 3 , \'Franca\' ) " ;
-          System.out.println ( insertSQL ) ;
-          statement.executeUpdate ( insertSQL ) ;
-          System.out.println ( "DONE" ) ;
-
-        }
-        catch (SQLException e)
-        {
-          sqlCode = e.getErrorCode(); // Get SQLCODE
-          sqlState = e.getSQLState(); // Get SQLSTATE
-                
-          // Your code to handle errors comes here;
-          // something more meaningful than a print would be good
-          System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-          System.out.println(e);
-        }
-
-        // Querying a table
-        try
-        {
-          String querySQL = "SELECT id, name from " + tableName + " WHERE NAME = \'Vicki\'";
-          System.out.println (querySQL) ;
-          java.sql.ResultSet rs = statement.executeQuery ( querySQL ) ;
-
-          while ( rs.next ( ) )
-          {
-            int id = rs.getInt ( 1 ) ;
-            String name = rs.getString (2);
-            System.out.println ("id:  " + id);
-            System.out.println ("name:  " + name);
-          }
-         System.out.println ("DONE");
-        }
-        catch (SQLException e)
-        {
-          sqlCode = e.getErrorCode(); // Get SQLCODE
-          sqlState = e.getSQLState(); // Get SQLSTATE
-                
-          // Your code to handle errors comes here;
-          // something more meaningful than a print would be good
-          System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-          System.out.println(e);
-        }
-
-      //Updating a table
-      try
-      {
-        String updateSQL = "UPDATE " + tableName + " SET NAME = \'Mimi\' WHERE id = 3";
-        System.out.println(updateSQL);
-        statement.executeUpdate(updateSQL);
-        System.out.println("DONE");
-
-        // Dropping a table
-        String dropSQL = "DROP TABLE " + tableName;
-        System.out.println ( dropSQL ) ;
-        statement.executeUpdate ( dropSQL ) ;
-        System.out.println ("DONE");
-      }
-      catch (SQLException e)
-      {
-        sqlCode = e.getErrorCode(); // Get SQLCODE
-        sqlState = e.getSQLState(); // Get SQLSTATE
-                
-        // Your code to handle errors comes here;
-        // something more meaningful than a print would be good
-        System.out.println("Code: " + sqlCode + "  sqlState: " + sqlState);
-        System.out.println(e);
-      }
-
-      // Finally but importantly close the statement and connection
-      statement.close ( ) ;
-      con.close ( ) ;
     }
 }
