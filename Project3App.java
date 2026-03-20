@@ -53,7 +53,7 @@ class Project3App
 
             switch(choice){
               case "1":
-                System.out.println("Not implemented yet");
+                lookupProductExpiration(con, in);
                 // Look up expiration of Product
                 break;
               case "2":
@@ -87,5 +87,32 @@ class Project3App
 
         in.close();
         con.close();
+    }
+
+    private static void lookupProductExpiration(Connection con, Scanner in) throws SQLException {
+      System.out.print("Enter product ID: ");
+      String prodId = in.nextLine();
+
+      String sql = "SELECT expirationDate FROM Product WHERE prodId = ?"; //PROBLEM HERE
+
+      try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, Integer.parseInt(prodId));
+
+        try (ResultSet rs = ps.executeQuery()) {
+          if (rs.next()) {
+            String productName = rs.getString("name");
+            Date expirationDate = rs.getDate("expiration_date");
+            System.out.println("Expiration date for product " + productName + " (ID: " + prodId + "): " + expirationDate);
+          } else {
+            System.out.println("Product not found.");
+          }
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid product ID format. Please enter a valid integer.");
+      } catch (SQLException e) {
+        System.out.println("Database error while looking up product expiration.");
+        System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+        System.out.println(e.getMessage());
+      }
     }
 }
