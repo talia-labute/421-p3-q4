@@ -44,7 +44,7 @@ class Project3App
             System.out.println("  2. Add new customer");
             System.out.println("  3. Update price of product");
             System.out.println("  4. Remove employee");
-            System.out.println("  5. Inventory specials");
+            System.out.println("  5. Customer Order History");
             System.out.println("  6. Task 6");
             System.out.println("  7. Quit");
             System.out.print("Enter your choice: ");
@@ -69,7 +69,8 @@ class Project3App
                 // Remove employee
                 break;
               case "5":
-                System.out.println("Not implemented yet");
+                showCustomerOrderHistory(con, in);
+                break;
                 // Inventory specials
                 break;
               case "6":
@@ -88,7 +89,7 @@ class Project3App
         in.close();
         con.close();
     }
-
+// Task 1
     private static void lookupProductExpiration(Connection con, Scanner in) throws SQLException {
       System.out.print("Enter product ID: ");
       String prodId = in.nextLine();
@@ -111,6 +112,102 @@ class Project3App
         System.out.println("Invalid product ID format. Please enter a valid integer.");
       } catch (SQLException e) {
         System.out.println("Database error while looking up product expiration.");
+        System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+        System.out.println(e.getMessage());
+      }
+    }
+
+    //Task 5
+    private static void showCustomerOrderHistory(Connection con, Scanner in) throws SQLException {
+      try {
+        System.out.print("Enter customer ID: ");
+        int custId = Integer.parseInt(in.nextLine());
+
+        //check if customer exists
+        String customerSQL = "SELECT name, email FROM Customer WHERE customerId = ?";
+        PreparedStatement customerStmt = con.prepareStatement(customerSQL);
+        customerStmt.setInt(1, custId);
+        ResultSet customerRs = customerStmt.executeQuery();
+
+        if (!customerRs.next()) {
+          System.out.println("Customer not found.");
+          return;
+        }
+
+        String customerName = customerRs.getString("name");
+        String customerEmail = customerRs.getString("email");
+
+        System.out.println("\nCustomer found:");
+        System.out.println("Name: " + customerName);
+        System.out.println("Email: " + customerEmail);
+
+        //get customer order
+        String ordersSQL = "SELECT orderId, orderDate, totalAmount, tip, toGo, empId " +
+                           "FROM Orders " +
+                           "WHERE customerId = ? " +
+                           "ORDER BY orderDate DESC, orderId DESC";
+        PreparedStatement ordersStmt = con.prepareStatement(ordersSQL);
+        ordersStmt.setInt(1, custId);
+        ResultSet ordersRs = ordersStmt.executeQuery();
+
+        boolean hasOrders = false;
+        while (ordersRs.next()) {
+          hasOrders = true;
+          int orderId = ordersRs.getInt("orderId");
+          Date orderDate = ordersRs.getDate("orderDate");
+          double totalAmount = ordersRs.getDouble("totalAmount");
+          double tip = ordersRs.getDouble("tip");
+          boolean toGo = ordersRs.getBoolean("toGo");
+          int empId = ordersRs.getInt("empId");
+
+          System.out.println("\n------------------------------");
+          System.out.println("Order ID: " + orderId);
+          System.out.println("Order Date: " + orderDate);
+          System.out.println("Total Amount: $" + totalAmount);
+          System.out.println("Tip: $" + tip);
+          System.out.println("To Go: " + (toGo ? "Yes" : "No"));
+          System.out.println("Handled by Employee ID: " + empId);
+
+          //get order items
+          String itemsSQL = "SELECT OI.prodId, P.name, OI.quantity, OI.priceAtPurchase " +
+                              "FROM OrderItem OI " +
+                              "JOIN Product P ON OI.prodId = P.prodId " +
+                              "WHERE OI.orderId = ?";
+          PreparedStatement itemsStmt = con.prepareStatement(itemsSQL);
+          itemsStmt.setInt(1, orderId);
+          ResultSet itemsRs = itemsStmt.executeQuery();
+
+          System.out.println("Items:");
+          boolean hasItems = false;
+          while (itemsRs.next()) {
+            hasItems = true;
+            int prodId = itemsRs.getInt("prodId");
+            String prodName = itemsRs.getString("name");
+            int quantity = itemsRs.getInt("quantity");
+            double priceAtPurchase = itemsRs.getDouble("priceAtPurchase");
+
+            String itemsSQL = "SELECT OI.prodId, P.name, OI.quantity, OI.priceAtPurchase " +
+                              "FROM OrderItem OI " +
+                              "JOIN Product P ON OI.prodId = P.prodId " +
+                              "WHERE OI.orderId = ?";
+          }
+          if (!hasItems) {
+            System.out.println("No items found for this order.");
+          }
+          itemsRs.close();
+          itemsStmt.close();
+        }
+        if (!hasOrders) {
+          System.out.println("No orders found for this customer.");
+        }
+        ordersRs.close();
+        ordersStmt.close();
+        customerRs.close();
+        customerStmt.close();
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid customer ID format. Please enter a valid integer.");
+      } catch (SQLException e) {
+        System.out.println("Database error while retrieving customer order history.");
         System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
         System.out.println(e.getMessage());
       }
