@@ -72,7 +72,6 @@ class Project3App
                 showCustomerOrderHistory(con, in);
                 break;
                 // Inventory specials
-                break;
               case "6":
                 System.out.println("Not implemented yet");
                 // Task 6
@@ -94,7 +93,7 @@ class Project3App
       System.out.print("Enter product ID: ");
       String prodId = in.nextLine();
 
-      String sql = "SELECT expirationDate FROM Product WHERE prodId = ?"; //PROBLEM HERE
+      String sql = "SELECT name, expirationDate FROM Product WHERE prodId = ?"; //PROBLEM HERE
 
       try (PreparedStatement ps = con.prepareStatement(sql)) {
         ps.setInt(1, Integer.parseInt(prodId));
@@ -102,7 +101,7 @@ class Project3App
         try (ResultSet rs = ps.executeQuery()) {
           if (rs.next()) {
             String productName = rs.getString("name");
-            Date expirationDate = rs.getDate("expiration_date");
+            Date expirationDate = rs.getDate("expirationDate");
             System.out.println("Expiration date for product " + productName + " (ID: " + prodId + "): " + expirationDate);
           } else {
             System.out.println("Product not found.");
@@ -254,11 +253,6 @@ class Project3App
             String prodName = itemsRs.getString("name");
             int quantity = itemsRs.getInt("quantity");
             double priceAtPurchase = itemsRs.getDouble("priceAtPurchase");
-
-            String itemsSQL = "SELECT OI.prodId, P.name, OI.quantity, OI.priceAtPurchase " +
-                              "FROM OrderItem OI " +
-                              "JOIN Product P ON OI.prodId = P.prodId " +
-                              "WHERE OI.orderId = ?";
           }
           if (!hasItems) {
             System.out.println("No items found for this order.");
