@@ -57,7 +57,7 @@ class Project3App
                 // Look up expiration of Product
                 break;
               case "2":
-                System.out.println("Not implemented yet");
+                addNewCustomer(con, in);
                 // Add new customer
                 break;
               case "3":
@@ -115,6 +115,75 @@ class Project3App
         System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
         System.out.println(e.getMessage());
       }
+    }
+
+    //Task 2
+    private static void addNewCustomer(Connection con, Scanner in) throws SQLException {
+      try {
+        System.out.print("Enter customer name: ");
+        String name = in.nextLine();
+
+        System.out.print("Enter customer email: ");
+        String email = in.nextLine();
+
+        System.out.print("Enter customer phone: ");
+        String phone = in.nextLine();
+
+        System.out.println("Enter customer allergies (or leave blank):");
+        String allergies = in.nextLine();
+
+        //check if email exists
+        String checkEmailSQL = "SELECT customerId FROM Customer WHERE email = ?";
+        PreparedStatement checkEmailStmt = con.prepareStatement(checkEmailSQL);
+        checkEmailStmt.setString(1, email);
+        ResultSet emailRs = checkEmailStmt.executeQuery();
+
+        if (emailRs.next()){
+          System.out.println("A customer with this email already exists");
+          return;
+        }
+
+        //check if phone exists
+        String checkPhoneSQL = "SELECT customerId FROM Customer WHERE phoneNum = ?";
+        PreparedStatement checkPhoneStmt = con.prepareStatement(checkPhoneSQL);
+        checkPhoneStmt.setString(1, phone);
+        ResultSet phoneRs = checkPhoneStmt.executeQuery();
+
+        if (phoneRs.next()){
+          System.out.println("A customer with this phone number already exists");
+          return;
+        }
+
+        //generate new customer ID
+        String maxIdSQL = "SELECT MAX(customerId) AS maxId FROM Customer";
+        Statement maxIdStmt = con.createStatement();
+        ResultSet maxIdRs = maxIdStmt.executeQuery(maxIdSQL);
+
+        int newCustomerId = 1;
+        if (maxIdRs.next()) {
+          newCustomerId = maxIdRs.getInt("maxId") + 1;
+        }
+
+        //insert new customer
+        String insertSQL = "INSERT INTO Customer (customerId, email, phoneNum, name, allergies) " +
+                           "VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement insertStmt = con.prepareStatement(insertSQL);
+        insertStmt.setInt(1, newCustomerId);
+        insertStmt.setString(2, email);
+        insertStmt.setString(3, phone);
+        insertStmt.setString(4, name);
+        insertStmt.setString(5, allergies.isEmpty() ? null : allergies);
+
+        insertStmt.executeUpdate();
+        System.out.println("Customer added successfully with ID: " + newCustomerId);
+
+      } catch (SQLException e) {
+        System.out.println("Database error while adding new customer.");
+        System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+        System.out.println(e.getMessage());
+      } catch (NumberFormatException e) {
+        System.out.println("Invalid input format. Please enter valid data.");
+      } 
     }
 
     //Task 5
