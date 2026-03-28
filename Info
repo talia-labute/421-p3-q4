@@ -1,13 +1,17 @@
 used by manager
 
-one simple SELECT: select price of product
+DONE one simple SELECT: select price of product
 
-one INSERT: insert meaningful customer 
+DONE one INSERT: insert meaningful customer 
+  - Insert order Item, use a trigger 
 
-one UPDATE or DELETE: update price of product / fire employee
+one UPDATE or DELETE: update price of product
 
-one option with two SQL statements: show customer order history (check customer exists, list orders, optionally let user choose an order, list order contents
+DONE one option with two SQL statements: show customer order history (check customer exists, list orders, optionally let user choose an order, list order contents
 
-one submenu option: 
+one submenu option: 6. Inventory menu
+   → 1. Show all products
+   → 2. Show baked goods only
+   → 3. Show drinks only
 
-quit
+DONE quit
