@@ -42,10 +42,10 @@ class Project3App
             System.out.println("Limp Bakery Main Menu");
             System.out.println("  1. Look up expiration of Product");
             System.out.println("  2. Add new customer");
-            System.out.println("  3. Update price of product");
+            System.out.println("  3. Add order item to order");
             System.out.println("  4. Remove employee");
             System.out.println("  5. Customer Order History");
-            System.out.println("  6. Task 6");
+            System.out.println("  6. Inventory Menu");
             System.out.println("  7. Quit");
             System.out.print("Enter your choice: ");
 
@@ -61,7 +61,7 @@ class Project3App
                 // Add new customer
                 break;
               case "3":
-                System.out.println("Not implemented yet");
+                addOrderItemToOrder(con, in);
                 // Update price of product
                 break;
               case "4":
@@ -183,6 +183,108 @@ class Project3App
       } catch (NumberFormatException e) {
         System.out.println("Invalid input format. Please enter valid data.");
       } 
+    }
+
+    //Task 3
+    private static void addOrderItemToOrder(Connection con, Scanner in) throws SQLException {
+      try {
+        System.out.print("Enter Order ID: ");
+        int orderId = Integer.parseInt(in.nextLine());
+
+        System.out.print("Enter Product ID: ");
+        int prodId = Integer.parseInt(in.nextLine());
+
+        System.out.print("Enter Quantity: ");
+        int quantity = Integer.parseInt(in.nextLine());
+
+        if (quantity <= 0){
+          System.out.println("Please enter a valid quantity");
+          return;
+        }
+
+        //check order exists
+        String orderSQL = "SELECT orderId, totalAmount FROM Orders WHERE orderId = ?";
+        PreparedStatement orderStmt = con.prepareStatement(orderSQL);
+        orderStmt.setInt(1, orderId);
+        ResultSet orderRs = orderStmt.executeQuery();
+
+        if (!orderRs.next()) {
+            System.out.println("Order not found.");
+            orderRs.close();
+            orderStmt.close();
+            return;
+        }
+
+        double oldTotal = orderRs.getDouble("totalAmount");
+        orderRs.close();
+        orderStmt.close();
+
+        //check that product exists and is still in stock
+        String productSQL = "SELECT name, price, inStock FROM Product WHERE prodId = ?";
+        PreparedStatement productStmt = con.prepareStatement(productSQL);
+        productStmt.setInt(1, prodId);
+        ResultSet productRs = productStmt.executeQuery();
+
+        if (!productRs.next()) {
+            System.out.println("Product not found.");
+            productRs.close();
+            productStmt.close();
+            return;
+        }
+
+        String productName = productRs.getString("name");
+        double price = productRs.getDouble("price");
+        boolean inStock = productRs.getBoolean("inStock");
+
+        productRs.close();
+        productStmt.close();
+
+        if (!inStock) {
+            System.out.println("That product is currently out of stock.");
+            return;
+        }
+
+        //insert order item
+        //price at purchase computed form product price 
+        String insertSQL = "INSERT INTO OrderItem(orderId, prodId, quantity, priceAtPurchase) VALUES (?, ?, ?, ?)";
+        PreparedStatement insertStmt = con.prepareStatement(insertSQL);
+        insertStmt.setInt(1, orderId);
+        insertStmt.setInt(2, prodId);
+        insertStmt.setInt(3, quantity);
+        insertStmt.setDouble(4, price);
+
+        insertStmt.executeUpdate();
+        insertStmt.close();
+
+        //show new total after trigger fired
+        String confirmSQL = "SELECT totalAmount FROM Orders WHERE orderId = ?";
+        PreparedStatement confirmStmt = con.prepareStatement(confirmSQL);
+        confirmStmt.setInt(1, orderId);
+        ResultSet confirmRs = confirmStmt.executeQuery();
+
+        double newTotal = oldTotal;
+        if (confirmRs.next()) {
+            newTotal = confirmRs.getDouble("totalAmount");
+        }
+
+        confirmRs.close();
+        confirmStmt.close();
+
+        System.out.println("Added item successfully.");
+        System.out.println("Product: " + productName);
+        System.out.println("Quantity: " + quantity);
+        System.out.println("Price at purchase: $" + price);
+        System.out.println("Old order total: $" + oldTotal);
+        System.out.println("New order total: $" + newTotal);
+        System.out.println("Trigger updated the order total automatically.");
+
+      } catch (NumberFormatException e){
+        System.out.println("Invalid numeric input.")
+      } catch (SQLException e){
+        System.out.println("Database error while adding order item.");
+        System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+        System.out.println(e.getMessage());
+      }
     }
 
     //Task 5
