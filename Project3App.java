@@ -65,16 +65,16 @@ class Project3App
                 // Update price of product
                 break;
               case "4":
-                System.out.println("Not implemented yet");
-                // Remove employee
+                updateProductPrice(con, in);
+                // Update product price
                 break;
               case "5":
                 showCustomerOrderHistory(con, in);
                 break;
                 // Inventory specials
               case "6":
-                System.out.println("Not implemented yet");
-                // Task 6
+                inventoryMenu(con,in);
+                // inventory menu with subqueries
                 break;
               case "7":
                 running = false;
@@ -287,6 +287,68 @@ class Project3App
       }
     }
 
+    //Task 4
+    private static void updateProductPrice(Connection con, Scanner in) {
+        try {
+            System.out.print("Enter product ID: ");
+            int prodId = Integer.parseInt(in.nextLine());
+ 
+            // First show the current price (SELECT)
+            String selectSQL = "SELECT name, price FROM Product WHERE prodId = ?";
+            String productName;
+            double currentPrice;
+            try (PreparedStatement selectStmt = con.prepareStatement(selectSQL)) {
+                selectStmt.setInt(1, prodId);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        System.out.println("Product not found.");
+                        return;
+                    }
+                    productName = rs.getString("name");
+                    currentPrice = rs.getDouble("price");
+                }
+            }
+ 
+            System.out.printf("Product: %s (ID: %d)%n", productName, prodId);
+            System.out.printf("Current price: $%.2f%n", currentPrice);
+            System.out.print("Enter new price: $");
+ 
+            double newPrice;
+            try {
+                newPrice = Double.parseDouble(in.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid price format. Please enter a valid number.");
+                return;
+            }
+ 
+            if (newPrice < 0) {
+                System.out.println("Price cannot be negative.");
+                return;
+            }
+ 
+            // Perform the UPDATE
+            String updateSQL = "UPDATE Product SET price = ? WHERE prodId = ?";
+            try (PreparedStatement updateStmt = con.prepareStatement(updateSQL)) {
+                updateStmt.setDouble(1, newPrice);
+                updateStmt.setInt(2, prodId);
+                int rows = updateStmt.executeUpdate();
+                if (rows > 0) {
+                    System.out.printf("Price updated successfully: \"%s\" is now $%.2f.%n",
+                                      productName, newPrice);
+                } else {
+                    System.out.println("Update failed. Product not found.");
+                }
+            }
+ 
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid product ID format. Please enter a valid integer.");
+        } catch (SQLException e) {
+            System.out.println("Database error while updating product price.");
+            System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+            System.out.println(e.getMessage());
+        }
+    }
+
     //Task 5
     private static void showCustomerOrderHistory(Connection con, Scanner in) throws SQLException {
       try {
@@ -376,5 +438,92 @@ class Project3App
         System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
         System.out.println(e.getMessage());
       }
+    }
+
+    // task 6
+
+private static void inventoryMenu(Connection con, Scanner in) {
+        boolean inMenu = true;
+        while (inMenu) {
+            System.out.println();
+            System.out.println("--- Inventory Menu ---");
+            System.out.println("Choose one out of 1-4");
+            System.out.println("  1. Show all products");
+            System.out.println("  2. Show baked goods only");
+            System.out.println("  3. Show drinks only");
+            System.out.println("  4. Back to main menu");
+            System.out.print("Enter your choice: ");
+ 
+            String choice = in.nextLine();
+            switch (choice) {
+                case "1":
+                    showProducts(con, null);
+                    break;
+                case "2":
+                    showProducts(con, "BakedGood");
+                    break;
+                case "3":
+                    showProducts(con, "Drink");
+                    break;
+                case "4":
+                    inMenu = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+ 
+    // Shared helper for the inventory sub-menu
+    private static void showProducts(Connection con, String category) {
+        String sql;
+        if (category == null) {
+            sql = "SELECT prodId, name, price, inStock, expirationDate " +
+                  "FROM Product " +
+                  "ORDER BY prodId";
+        } else if (category.equals("BakedGood")) {
+            sql = "SELECT P.prodId, P.name, P.price, P.inStock, P.expirationDate " +
+                  "FROM Product P " +
+                  "JOIN BakedGood B ON P.prodId = B.prodId " +
+                  "ORDER BY P.prodId";
+        } else { // Drink
+            sql = "SELECT P.prodId, P.name, P.price, P.inStock, P.expirationDate " +
+                  "FROM Product P " +
+                  "JOIN Drink D ON P.prodId = D.prodId " +
+                  "ORDER BY P.prodId";
+        }
+ 
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+ 
+            String header = (category == null) ? "All Products"
+                          : (category.equals("BakedGood") ? "Baked Goods" : "Drinks");
+            System.out.println("\n=== " + header + " ===");
+            System.out.printf("%-6s  %-25s  %8s  %-8s  %s%n",
+                              "ID", "Name", "Price", "In Stock", "Expiration");
+            System.out.println("--------------------------------------------------------------");
+ 
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                int prodId = rs.getInt("prodId");
+                String name = rs.getString("name");
+                double price = rs.getDouble("price");
+                boolean inStock = rs.getBoolean("inStock");
+                Date expDate = rs.getDate("expirationDate");
+                System.out.printf("%-6d  %-25s  $%7.2f  %-8s  %s%n",
+                                  prodId, name, price,
+                                  inStock ? "Yes" : "No",
+                                  expDate != null ? expDate.toString() : "N/A");
+            }
+            if (!found) {
+                System.out.println("No products found.");
+            }
+ 
+        } catch (SQLException e) {
+            System.out.println("Database error while retrieving inventory.");
+            System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
+            System.out.println(e.getMessage());
+        }
     }
 }
