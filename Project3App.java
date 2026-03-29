@@ -498,10 +498,9 @@ private static void inventoryMenu(Connection con, Scanner in) {
  
             String header = (category == null) ? "All Products"
                           : (category.equals("BakedGood") ? "Baked Goods" : "Drinks");
-            System.out.println("\n=== " + header + " ===");
+            System.out.println("\n" + header);
             System.out.printf("%-6s  %-25s  %8s  %-8s  %s%n",
                               "ID", "Name", "Price", "In Stock", "Expiration");
-            System.out.println("--------------------------------------------------------------");
  
             boolean found = false;
             while (rs.next()) {
