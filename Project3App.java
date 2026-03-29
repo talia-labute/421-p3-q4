@@ -279,7 +279,7 @@ class Project3App
         System.out.println("Trigger updated the order total automatically.");
 
       } catch (NumberFormatException e){
-        System.out.println("Invalid numeric input.")
+        System.out.println("Invalid numeric input.");
       } catch (SQLException e){
         System.out.println("Database error while adding order item.");
         System.out.println("Code: " + e.getErrorCode() + " SQLState: " + e.getSQLState());
