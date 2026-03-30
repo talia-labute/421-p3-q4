@@ -43,7 +43,7 @@ class Project3App
             System.out.println("  1. Look up expiration of Product");
             System.out.println("  2. Add new customer");
             System.out.println("  3. Add order item to order");
-            System.out.println("  4. Remove employee");
+            System.out.println("  4. Update product price");
             System.out.println("  5. Customer Order History");
             System.out.println("  6. Inventory Menu");
             System.out.println("  7. Quit");
