@@ -417,6 +417,8 @@ class Project3App
             String prodName = itemsRs.getString("name");
             int quantity = itemsRs.getInt("quantity");
             double priceAtPurchase = itemsRs.getDouble("priceAtPurchase");
+
+            System.out.println(name + " x" + quantity + " ($" + price + ")");
           }
           if (!hasItems) {
             System.out.println("No items found for this order.");
